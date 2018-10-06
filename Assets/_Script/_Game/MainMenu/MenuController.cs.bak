@@ -1,0 +1,191 @@
+using UnityEngine;
+using System.Collections;
+
+public class MenuController : MonoBehaviour
+{
+    /// <summary>
+    /// 3D root下的主面板
+    /// </summary>
+    public GameObject _3DPanelMain;
+    /// <summary>
+    /// 震动按钮的贴图
+    /// </summary>
+    public GameObject _BtnVibrateTexture;
+
+    public GameObject _BtnMusicTexture;
+    /// <summary>
+    /// 所有按钮的贴图
+    /// </summary>
+    public GameObject[] _BtnTextures;
+
+    /// <summary>
+    /// 是否可以触摸屏幕
+    /// </summary>
+    private bool _CanTouch;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public GameObject _LoadingScript;
+
+    public int _TestGear;
+
+    private GameObject _BgSound;
+
+    void Start()
+    {
+        _BgSound = GameObject.Find("BgSound");
+    }
+
+    void Update()
+    {
+        //返回按钮的点击事件
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
+        }
+        //根据PlayMaker判定何时可以触摸按钮
+        _CanTouch = _3DPanelMain.gameObject.transform.GetComponent<PlayMakerFSM>().FsmVariables.GetFsmBool("CanTouch").Value;
+    }
+
+    /// <summary>
+    /// 跳转About场景的方法
+    /// </summary>
+    IEnumerator ToAboutScene()
+    {
+        //如果可以触摸则跳转到About场景
+        if (_CanTouch == true)
+        {
+            DontDestroyOnLoad(_BgSound);
+            //Application.LoadLevel("About");
+            _LoadingScript.GetComponent<Loading>().LoadScene();
+            yield return new WaitForSeconds(1f);
+
+            AsyncOperation async = Application.LoadLevelAsync("About");
+            yield return async;
+        }
+    }
+
+    /// <summary>
+    /// 跳转Game场景的方法
+    /// </summary>
+    IEnumerator ToGameScene()
+    {
+        //如果可以触摸则跳转到Game场景
+        if (_CanTouch == true)
+        {
+            _LoadingScript.GetComponent<Loading>().LoadScene();
+            yield return new WaitForSeconds(1f);
+
+            AsyncOperation async = Application.LoadLevelAsync("Game");
+            yield return async;
+
+        }
+    }
+
+    void ToQuit()
+    {
+        if (_CanTouch == true)
+        {
+            Debug.Log("Quit This Game");
+            Application.Quit();
+
+        }
+    }
+
+    /// <summary>
+    /// 跳转Shop场景的方法
+    /// </summary>
+    IEnumerator ToShopScene()
+    {
+        //如果可以触摸则跳转到Shop场景
+        if (_CanTouch == true)
+        {
+            DontDestroyOnLoad(_BgSound);
+            _LoadingScript.GetComponent<Loading>().LoadScene();
+            yield return new WaitForSeconds(1f);
+
+            AsyncOperation async = Application.LoadLevelAsync("Shop");
+            yield return async;
+        }
+    }
+
+    /// <summary>
+    /// 音效按钮开关的方法
+    /// </summary>
+    void SoundToggle()
+    {
+        Debug.Log("Sound");
+    }
+
+    /// <summary>
+    /// 音乐按钮开关的方法
+    /// </summary>
+    void MusicToggle()
+    {
+        //如果可以触摸屏幕
+        if (_CanTouch == true)
+        {
+            //如果当前为音乐开则点击后为音乐关 反之反之
+            GlobalManager.GetInstants()._CanMusic = GlobalManager.GetInstants()._CanMusic == true ? false : true;
+            //如果音乐开则打开声音并更换贴图 反之反之
+            if (GlobalManager.GetInstants()._CanMusic == true)
+            {
+                Debug.Log("MusicOn");
+                _BtnMusicTexture.GetComponent<UISlicedSprite>().spriteName = "MusicOn";
+                AudioListener.volume = 1f;
+            }
+            else
+            {
+                _BtnMusicTexture.GetComponent<UISlicedSprite>().spriteName = "MusicOff";
+                Debug.Log("MusicOff");
+                AudioListener.volume = 0f;
+                //_BtnMusicTexture.GetComponent<UISlicedSprite>().enabled = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 震动按钮开关的方法
+    /// </summary>
+    void VibrateToggle()
+    {
+        //如果可以触摸屏幕
+        if (_CanTouch == true)
+        {
+            //如果当前为震动则点击后为取消震动 反之反之
+            GlobalManager.GetInstants()._CanVibrate = GlobalManager.GetInstants()._CanVibrate == true ? false : true;
+            //如果震动则替换为震动的贴图
+            if (GlobalManager.GetInstants()._CanVibrate == true)
+            {
+                Debug.Log("VibrateOn");
+                _BtnVibrateTexture.GetComponent<UISlicedSprite>().spriteName = "VibrateOn";
+            }
+            //否则替换为不震动的贴图
+            else
+            {
+                _BtnVibrateTexture.GetComponent<UISlicedSprite>().spriteName = "VibrateOff";
+                Debug.Log("VibrateOff");
+            }
+        }
+    }
+
+    void OnGUI()
+    {
+        //if (GUI.Button(new Rect(0, 0, 100, 30), "AddGear:" + _TestGear))
+        //{
+        //    GlobalManager.GetInstants().UpdatePlayerGear(_TestGear);
+        //    GlobalManager.GetInstants().SyncPlayerData();
+        //}
+
+        //if (GUI.Button(new Rect(0, 30, 100, 30), "ResetGear"))
+        //{
+        //    GlobalManager.GetInstants().UpdatePlayerGear(-99999999);
+        //    GlobalManager.GetInstants().UpdatePlayerGear(200);
+        //    GlobalManager.GetInstants().SyncPlayerData();
+        //}
+    }
+}

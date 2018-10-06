@@ -1,0 +1,19 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class BtnVibrateLogic : MonoBehaviour
+{
+    public GameObject _BtnVibrateTexture;
+
+    void Start()
+    {
+        if (GlobalManager.GetInstants()._CanVibrate == true)
+        {
+            _BtnVibrateTexture.GetComponent<UISlicedSprite>().spriteName = "VibrateOn";
+        }
+        else
+        {
+            _BtnVibrateTexture.GetComponent<UISlicedSprite>().spriteName = "VibrateOff";
+        }
+    }
+}
